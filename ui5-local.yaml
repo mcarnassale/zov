@@ -28,7 +28,7 @@ server:
     - name: fiori-tools-proxy
       afterMiddleware: compression
       configuration:
-        ignoreCertErrors: false # If set to true, certificate errors will be ignored. E.g. self-signed certificates will be accepted
+        ignoreCertError: false # If set to true, certificate errors will be ignored. E.g. self-signed certificates will be accepted
         backend:
           - path: /sap
             url: http://vhcalnplci:8000
@@ -38,10 +38,13 @@ server:
       configuration:
         mountPath: /
         services:
-          - urlPath: /sap/opu/odata/sap/Z001_SRV
-            metadataPath: ./webapp/localService/mainService/metadata.xml
-            mockdataPath: ./webapp/localService/mainService/data
+          - urlPath: /sap/opu/odata/sap/ZOV_SRV
+            metadataPath: ./webapp/localService/metadata.xml
+            mockdataPath: ./webapp/localService/data
             generateMockData: true
-        annotations:
-          - localPath: ./webapp/localService/mainService/Z001_ANNO_MDL.xml
-            urlPath: /sap/opu/odata/IWFND/CATALOGSERVICE;v=2/Annotations(TechnicalName='Z001_ANNO_MDL',Version='0001')/$value/
+        annotations: []
+    - name: fiori-tools-preview
+      afterMiddleware: fiori-tools-appreload
+      configuration:
+        component: zov
+        ui5Theme: sap_horizon

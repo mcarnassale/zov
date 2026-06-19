@@ -17,7 +17,7 @@
             class="sapUiTinyMargin"
             selectionMode="MultiToggle">
             <t:toolbar>
-                <OverflowToolbar>
+                  <OverflowToolbar>
                     <Title id="title" text="Ordens"></Title>
                 </OverflowToolbar>
             </t:toolbar>

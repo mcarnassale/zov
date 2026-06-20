@@ -10,186 +10,143 @@ sap.ui.define([
 
         return Controller.extend("zov.controller.View1", {
             onInit: function () {
+                var oView   = this.getView();
+                var oFModel = new sap.ui.model.json.JSONModel();
+                
+                oFModel.setData({
+                    "OrdemId": "",
+                    "DataCriacao": "",
+                    "CriadoPor": "",
+                    "ClienteId": "",
+                    "TotalItens": "",
+                    "TotalFrete": "",
+                    "TotalOrdem": "",
+                    "Status": "",
+                    "OrdenacaoCampo": "OrdemId",
+                    "OrdenacaoTipo": "ASC",
+                    "Limite": 10,
+                    "Offset": 0
+                });
+                oView.setModel(oFModel,"filter");
+
+                var oTModel = new sap.ui.model.json.JSONModel();
+                oTModel.setData([]);
+                oView.setModel(oTModel,"table");
+    
+                this.onFilterSearch();
             },
 
-            onCreateOVCab: function(){
-                var oData = {
-                    ClienteId: 1,
-                    TotalItens: '100.00',
-                    TotalFrete: '10.00',
-                    TotalOrdem: '110.00',
-                    Status: 'N'
-                };
-                this.create(oData);
-            },
+            onAtualizarStatus: function(sStatus){
+                var oTable   = this.getView().byId("table1");
+                var oModel   = this.getOwnerComponent().getModel();
+                var aIndex   = oTable.getSelectedIndices();
+                var that     = this;
 
-            onCreateDeepOVCab: function(){
-                var oData = {
-                    ClienteId: 1,
-                    TotalItens: '100.00',
-                    TotalFrete: '10.00',
-                    TotalOrdem: '110.00',
-                    Status: 'N',
-                    toOVItem: [
-                        {
-                          "ItemId": 1,
-                          "Material": "100",
-                          "Descricao": "Mouse",
-                          "Quantidade": 1,
-                          "PrecoUni": '1.00',
-                          "PrecoTot": '1.00'
-                        },
-                        {
-                            "ItemId": 2,
-                            "Material": "200",
-                            "Descricao": "Teclado",
-                            "Quantidade": 2,
-                            "PrecoUni": '10.00',
-                            "PrecoTot": '20.00'
-                          }
-                    ]
-                };
-                this.create(oData);
-            },
-
-            create: function(oData){
-                var that   = this;
-                var oModel = this.getOwnerComponent().getModel();
-
-                this.getView().setBusy(true);
-                oModel.create("/OVCabSet",oData,{
-                    success: function(oData2, oResponse){
-                        that.getView().setBusy(false);
-
-                        console.log(oData2);
-                        console.log(oResponse);
-                        if(oResponse.statusCode == 201){
-                            that.getView().byId("lastOrdemId").setValue(oData2.OrdemId);
-                            that.getView().byId("textarea1").setValue(JSON.stringify(oData2));
-
-                            MessageToast.show("Cadastrado com sucesso");
-                        }else{
-                            MessageToast.show("Erro no cadastro");    
-                        }
-                    },
-                    error: function(oError){
-                        that.getView().setBusy(false);
-                        
-                        console.log(oError);
-                        var oObj = JSON.parse(oError.responseText);
-                        MessageToast.show(oObj.error.message.value);
-                    }}
-                );
-            },
-
-            onReadOVCab: function(){
-                var iOrdemId = this.getView().byId("lastOrdemId").getValue();
-                if(iOrdemId == 0){
-                    MessageToast.show("Crie um cabeçalho de ordem primeiro");
+                if(aIndex.length == 0){
+                    MessageToast.show("Selecione uma linha");
                     return;
                 }
 
-                this.read(iOrdemId);
-            },
-            
-            read: function(iOrdemId){
-                var that   = this;
-                var oModel = this.getOwnerComponent().getModel();
+                if(aIndex.length != 1){
+                    MessageToast.show("Selecione apenas uma linha");
+                    return;
+                }
+
+                var oItem = oTable.getContextByIndex(aIndex[0]);
+                var iOrdemId = oItem.getProperty("OrdemId");
 
                 this.getView().setBusy(true);
-                oModel.read("/OVCabSet("+iOrdemId+")",{
-                    success: function(oData2, oResponse){
-                        that.getView().setBusy(false);
-
-                        that.getView().byId("textarea1").setValue(JSON.stringify(oData2));
-
-                        console.log(oData2);
-                        console.log(oResponse);
-                        MessageToast.show("Leitura realizada");
+                oModel.callFunction(
+                    "/ZFI_ATUALIZA_STATUS",
+                    {
+                    method: "GET",
+                    urlParameters: {
+                        ID_ORDEMID: iOrdemId,
+                        ID_STATUS: sStatus
                     },
-                    error: function(oError){
+                    success: function(oData, response) {
                         that.getView().setBusy(false);
-
-                        console.log(oError);
-                        var oObj = JSON.parse(oError.responseText);
-                        MessageToast.show(oObj.error.message.value);
+                        MessageToast.show("Status atualizado com sucesso");
+                        that.onFilterSearch();
+                    },
+                    error: function(oError) {
+                        that.getView().setBusy(false);
+                        MessageToast.show("Erro ao atualizar status");
                     }
                 });
             },
 
-            onUpdateOVCab: function(){
-                var iOrdemId = this.getView().byId("lastOrdemId").getValue();
-                if(iOrdemId == 0){
-                    MessageToast.show("Crie um cabeçalho de ordem primeiro");
-                    return;
+            onFilterReset: function(){
+            },
+    
+            onFilterSearch: function(oEvent){
+                var oView   = this.getView();
+                var oModel  = this.getOwnerComponent().getModel();
+                var oFModel = oView.getModel("filter");
+                var oTModel = oView.getModel("table");
+                var oFData  = oFModel.getData();
+                var oFilter = null;
+                var aParams = [];
+                var that    = this;
+    
+                // aplicando filtros
+                var aSorter  = [];
+                var aFilters = [];
+                
+                if(oFData.OrdemId != ''){
+                    oFilter = new sap.ui.model.Filter({
+                        path: 'OrdemId',
+                        operator: sap.ui.model.FilterOperator.EQ,
+                        value1: oFData.OrdemId
+                    });
+                    aFilters.push(oFilter);
                 }
+    
+                if(oFData.DataCriacao != ''){
+                    oFilter = new sap.ui.model.Filter({
+                        path: 'DataCriacao',
+                        operator: sap.ui.model.FilterOperator.EQ,
+                        value1: oFData.DataCriacao
+                    });
+                    aFilters.push(oFilter);
+                }
+    
+                if(oFData.ClienteId != ''){
+                    oFilter = new sap.ui.model.Filter({
+                        path: 'ClienteId',
+                        operator: sap.ui.model.FilterOperator.EQ,
+                        value1: oFData.ClienteId
+                    });
+                    aFilters.push(oFilter);
+                }
+    
+                var bDescending = false;
+                if(oFData.OrdenacaoTipo == "DESC"){
+                    bDescending = true;
+                }
+                var oSort = new sap.ui.model.Sorter(oFData.OrdenacaoCampo,bDescending);
+                aSorter.push(oSort);
 
-                var oData = {
-                    ClienteId: 2,
-                    TotalItens: '150.00',
-                    TotalFrete: '10.00',
-                    TotalOrdem: '160.00',
-                    Status: 'C'
-                };
-                this.update(iOrdemId,oData);
-            },
-            
-            update: function(iOrdemId,oData){
-                var that   = this;
-                var oModel = this.getOwnerComponent().getModel();
+                // limite, offset
+                aParams.push("$top="+oFData.Limite);
+                aParams.push("$skip="+oFData.Offset);
 
+                // executando filtro
                 this.getView().setBusy(true);
-                oModel.update("/OVCabSet("+iOrdemId+")",oData,{
+                oModel.read("/OVCabSet",{
+                    sorters: aSorter,
+                    filters: aFilters,
+                    urlParameters: aParams,
+
                     success: function(oData2, oResponse){
                         that.getView().setBusy(false);
-                        console.log(oData2);
-                        console.log(oResponse);
-                        if(oResponse.statusCode == 204){
-                            MessageToast.show("Atualizado com sucesso");
-                        }else{
-                            MessageToast.show("Erro em atualizar");
-                        }
+                        oTModel.setData(oData2.results);
                     },
                     error: function(oError){
                         that.getView().setBusy(false);
-
-                        console.log(oError);
-                        var oObj = JSON.parse(oError.responseText);
-                        MessageToast.show(oObj.error.message.value);
-                    }}
-                );
-            },
-
-            onDeleteOVCab: function(){
-                var iOrdemId = this.getView().byId("lastOrdemId").getValue();
-                this.delete(iOrdemId);
-            },
-            
-            delete: function(iOrdemId){
-                var that   = this;
-                var oModel = this.getOwnerComponent().getModel();
-
-                this.getView().setBusy(true);
-                oModel.remove("/OVCabSet("+iOrdemId+")",{
-                    success: function(oData2, oResponse){
-                        that.getView().setBusy(false);
-
-                        console.log(oData2);
-                        console.log(oResponse);
-                        if(oResponse.statusCode == 204){
-                            MessageToast.show("Deletado com sucesso");
-                        }else{
-                            MessageToast.show("Erro em deletar");
-                        }
-                    },
-                    error: function(oError){
-                        that.getView().setBusy(false);
-                        console.log(oError);
-
-                        var oObj = JSON.parse(oError.responseText);
-                        MessageToast.show(oObj.error.message.value);
-                    }}
-                );
+                        MessageToast.show("Erro");
+                    }
+                });
             }
         });
     });

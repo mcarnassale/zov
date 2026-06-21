@@ -1,5 +1,5 @@
 {
-  "_version": "1.73.1",
+  "_version": "1.59.0",
   "sap.app": {
     "id": "zov",
     "type": "application",
@@ -12,8 +12,8 @@
     "resources": "resources.json",
     "sourceTemplate": {
       "id": "@sap/generator-fiori:basic",
-      "version": "1.26.0",
-      "toolsId": "85718739-6918-4db5-b780-f7b1bbbee9a8"
+      "version": "1.13.2",
+      "toolsId": "d8d8f270-937e-45d0-acbf-7ee731e8280a"
     },
     "dataSources": {
       "mainService": {
@@ -24,11 +24,7 @@
           "localUri": "localService/metadata.xml",
           "odataVersion": "2.0"
         }
-      },
-            "usuarios": {
-              "uri": "model/Usuarios.json",
-              "type": "JSON"
-      			}
+      }
     }
   },
   "sap.ui": {
@@ -48,9 +44,9 @@
     }
   },
   "sap.ui5": {
-    "flexEnabled": true,
+    "flexEnabled": false,
     "dependencies": {
-      "minUI5Version": "1.136.0",
+      "minUI5Version": "1.123.1",
       "libs": {
         "sap.m": {},
         "sap.ui.core": {},
@@ -73,14 +69,12 @@
           "bundleName": "zov.i18n.i18n"
         }
       },
-            "usuarios": {
-				"type": "sap.ui.model.json.JSONModel",
-				"dataSource": "usuarios"
-			},
       "": {
         "dataSource": "mainService",
         "preload": true,
-        "settings": {}
+        "settings": {
+          "useBatch": false
+        }
       }
     },
     "resources": {
@@ -102,10 +96,10 @@
       },
       "routes": [
         {
-          "name": "RouteView1",
+          "name": "RouteOrdemList",
           "pattern": ":?query:",
           "target": [
-            "TargetView1"
+            "TargetOrdemList"
           ]
         },
         {
@@ -124,12 +118,12 @@
         }
       ],
       "targets": {
-        "TargetView1": {
+        "TargetOrdemList": {
           "viewType": "XML",
           "transition": "slide",
           "clearControlAggregation": false,
-          "viewId": "View1",
-          "viewName": "View1"
+          "viewId": "OrdemList",
+          "viewName": "OrdemList"
         },
         "TargetOrdemForm": {
           "viewType": "XML",
@@ -140,7 +134,7 @@
         }
       }
     },
-      "rootView": {
+    "rootView": {
       "viewName": "zov.view.App",
       "type": "XML",
       "async": true,

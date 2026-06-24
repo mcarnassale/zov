@@ -1,28 +1,29 @@
 ## Application Details
 |               |
 | ------------- |
-|**Generation Date and Time**<br>Wed Jun 17 2026 15:09:33 GMT-0300 (Brasilia Standard Time)|
-|**App Generator**<br>SAP Fiori Application Generator|
-|**App Generator Version**<br>1.26.0|
+|**Generation Date and Time**<br>Sun Apr 21 2024 14:45:09 GMT-0300 (Brasilia Standard Time)|
+|**App Generator**<br>@sap/generator-fiori-freestyle|
+|**App Generator Version**<br>1.13.2|
 |**Generation Platform**<br>Visual Studio Code|
-|**Template Used**<br>Basic V2|
-|**Service Type**<br>SAP System (ABAP On-Premise)|
-|**Service URL**<br>http://vhcalnplci:8000/sap/opu/odata/sap/Z001_SRV|
+|**Template Used**<br>simple|
+|**Service Type**<br>SAP System (ABAP On Premise)|
+|**Service URL**<br>http://vhcalnplci:8000/sap/opu/odata/sap/ZOV_SRV
 |**Module Name**<br>zov|
-|**Application Title**<br>App para gerencoar ordens de venda|
+|**Application Title**<br>App para gerenciar ordens de venda|
 |**Namespace**<br>|
 |**UI5 Theme**<br>sap_horizon|
-|**UI5 Version**<br>1.136.0|
+|**UI5 Version**<br>1.123.1|
+|**Enable Code Assist Libraries**<br>False|
 |**Enable TypeScript**<br>False|
-|**Add Eslint configuration**<br>True, see https://www.npmjs.com/package/@sap-ux/eslint-plugin-fiori-tools#rules for the eslint rules.|
+|**Add Eslint configuration**<br>False|
 
 ## zov
 
-App para gerencoar ordens de venda
+App para gerenciar ordens de venda
 
 ### Starting the generated app
 
--   This app has been generated using the SAP Fiori tools - App Generator, as part of the SAP Fiori tools suite.  To launch the generated application, run the following from the generated application root folder:
+-   This app has been generated using the SAP Fiori tools - App Generator, as part of the SAP Fiori tools suite.  In order to launch the generated app, simply run the following from the generated app root folder:
 
 ```
     npm start
